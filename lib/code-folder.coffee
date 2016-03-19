@@ -17,9 +17,14 @@ module.exports = CodeFolder =
     for row in [0..editor.getLastBufferRow()]
       if editor.isFoldableAtBufferRow(row) and folding and editor.indentationForBufferRow(row) == level
         editor.foldBufferRow(row)
+        console.log ("folding a row")
+        console.log row
+        console.log level
       if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
         folding = true
         level = editor.indentationForBufferRow(row)
+        console.log ("starting folding")
+        console.log level
       else if editor.lineTextForBufferRow(row).indexOf("!fold") != -1
         folding = false
   # <!fold>
