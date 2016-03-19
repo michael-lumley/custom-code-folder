@@ -1,7 +1,7 @@
 {
   "name": "custom-code-folder",
   "main": "./lib/code-folder",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Custom Code Folding",
   "keywords": [],
   "repository": "https://github.com/michael-lumley/custom-code-folder.git",
