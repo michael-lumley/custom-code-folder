@@ -1,0 +1,13 @@
+{
+  "name": "custom-code-folder",
+  "main": "./lib/code-folder",
+  "version": "0.0.0",
+  "description": "Custom Code Folding",
+  "keywords": [],
+  "repository": "https://github.com/michael-lumley/custom-code-folder.git",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {}
+}
