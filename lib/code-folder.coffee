@@ -3,6 +3,7 @@ module.exports = CodeFolder =
   modalPanel: null
   subscriptions: null
 
+  # folding test @fold
   activate: (state) ->
     atom.workspace.observeTextEditors (editor) =>
       editor.displayBuffer.tokenizedBuffer.onDidTokenize =>
@@ -19,32 +20,34 @@ module.exports = CodeFolder =
       if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
         folding = true
         level = editor.indentationForBufferRow(row)
-      else if editor.lineTextForBufferRow(row).indexOf("<!fold>") != -1
+      else if editor.lineTextForBufferRow(row).indexOf("!fold") != -1
         folding = false
-    ###
-    regexes = []
+  # <!fold>
+
+  ###
+  regexes = []
+  for row in [0..editor.getLastBufferRow()]
+    continue unless editor.isBufferRowCommented(row)
+    if editor.lineTextForBufferRow(row).indexOf("@auto-fold regex") != -1
+      editor.lineTextForBufferRow(row).replace /\/(.*?)\//g, (m, regex) ->
+        regexes.push new RegExp(regex)
+        return m
+    break
+
+  eachRow = (f) ->
+    foldNext = false
+    any = false
     for row in [0..editor.getLastBufferRow()]
-      continue unless editor.isBufferRowCommented(row)
-      if editor.lineTextForBufferRow(row).indexOf("@auto-fold regex") != -1
-        editor.lineTextForBufferRow(row).replace /\/(.*?)\//g, (m, regex) ->
-          regexes.push new RegExp(regex)
-          return m
-      break
+      if editor.isFoldableAtBufferRow(row) && (foldNext || regexes.some((r) -> editor.lineTextForBufferRow(row).match(r)?))
+        any = true if f(row)
+      foldNext = editor.isBufferRowCommented(row) && editor.lineTextForBufferRow(row).indexOf("@auto-fold here") != -1
+    return any
 
-    eachRow = (f) ->
-      foldNext = false
-      any = false
-      for row in [0..editor.getLastBufferRow()]
-        if editor.isFoldableAtBufferRow(row) && (foldNext || regexes.some((r) -> editor.lineTextForBufferRow(row).match(r)?))
-          any = true if f(row)
-        foldNext = editor.isBufferRowCommented(row) && editor.lineTextForBufferRow(row).indexOf("@auto-fold here") != -1
-      return any
+  if action == 'toggle'
+    action = if eachRow((row) -> editor.isFoldedAtBufferRow(row)) then 'unfold' else 'fold'
 
-    if action == 'toggle'
-      action = if eachRow((row) -> editor.isFoldedAtBufferRow(row)) then 'unfold' else 'fold'
-
-    if action == "fold"
-      eachRow (row) -> editor.foldBufferRow(row) unless editor.isFoldedAtBufferRow(row)
-    else
-      eachRow (row) -> editor.unfoldBufferRow(row) if editor.isFoldedAtBufferRow(row)
-    ###
+  if action == "fold"
+    eachRow (row) -> editor.foldBufferRow(row) unless editor.isFoldedAtBufferRow(row)
+  else
+    eachRow (row) -> editor.unfoldBufferRow(row) if editor.isFoldedAtBufferRow(row)
+  ###
