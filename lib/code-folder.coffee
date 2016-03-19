@@ -15,17 +15,15 @@ module.exports = CodeFolder =
     level = null
 
     for row in [0..editor.getLastBufferRow()]
-      if editor.isFoldableAtBufferRow(row) and folding and editor.indentationForBufferRow(row) == level
+      if editor.isFoldableAtBufferRow(row) and folding and editor.indentationForBufferRow(row) <= level
         editor.foldBufferRow(row)
-        console.log ("folding a row")
-        console.log editor.lineTextForBufferRow(row)
-        console.log level
       if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
         folding = true
         level = editor.indentationForBufferRow(row)
-        console.log ("starting folding")
-        console.log editor.lineTextForBufferRow(row)
-        console.log level
+        if editor.lineTextForBufferRow(row).indexOf("@fold-children") != -1
+          level = editor.indentationForBufferRow(row) + 1
+        if editor.lineTextForBufferRow(row).indexOf("@fold-deep") != -1
+          level = 999
       else if editor.lineTextForBufferRow(row).indexOf("!fold") != -1
         folding = false
   # <!fold>
