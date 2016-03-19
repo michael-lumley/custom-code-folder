@@ -10,8 +10,17 @@ module.exports = CodeFolder =
   doFold: (action, editor) ->
     editor ?= atom.workspace.getActiveTextEditor()
 
+    folding = false
+    level = null
+
     for row in [0..editor.getLastBufferRow()]
-      editor.foldBufferRow(row) if editor.isFoldableAtBufferRow(row)
+      if editor.isFoldableAtBufferRow(row) and folding and editor.indentationForBufferRow(row) == level
+        editor.foldBufferRow(row)
+      if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
+        folding = true
+        level = editor.indentationForBufferRow(row)
+      else if editor.lineTextForBufferRow(row).indexOf("<!fold>") != -1
+        folding = false
     ###
     regexes = []
     for row in [0..editor.getLastBufferRow()]
