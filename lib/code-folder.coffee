@@ -1,3 +1,5 @@
+console.log "code-folder running"
+
 module.exports = CodeFolder =
 	codeFolderView: null
 	modalPanel: null
@@ -18,7 +20,7 @@ module.exports = CodeFolder =
 			console.log row
 			if editor.isFoldableAtBufferRow(row) and folding and editor.indentationForBufferRow(row) <= level
 				console.log "folding"
-				editor.foldBufferRow(row)
+				#editor.foldBufferRow(row)
 			if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
 				folding = true
 				level = editor.indentationForBufferRow(row)
