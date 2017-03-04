@@ -1,57 +1,59 @@
 module.exports = CodeFolder =
-  codeFolderView: null
-  modalPanel: null
-  subscriptions: null
+	codeFolderView: null
+	modalPanel: null
+	subscriptions: null
 
-  # folding test @fold
-  activate: (state) ->
-    atom.workspace.observeTextEditors (editor) =>
-      editor.displayBuffer.tokenizedBuffer.onDidTokenize =>
-        @doFold 'fold', editor
-  doFold: (action, editor) ->
-    editor ?= atom.workspace.getActiveTextEditor()
+	# folding test @fold
+	activate: (state) ->
+		atom.workspace.observeTextEditors (editor) =>
+			editor.displayBuffer.tokenizedBuffer.onDidTokenize =>
+				@doFold 'fold', editor
+	doFold: (action, editor) ->
+		editor ?= atom.workspace.getActiveTextEditor()
 
-    folding = false
-    level = null
+		folding = false
+		level = null
 
-    for row in [0..editor.getLastBufferRow()]
-      if editor.isFoldableAtBufferRow(row) and folding and editor.indentationForBufferRow(row) <= level
-        editor.foldBufferRow(row)
-      if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
-        folding = true
-        level = editor.indentationForBufferRow(row)
-        if editor.lineTextForBufferRow(row).indexOf("@fold-children") != -1
-          level = editor.indentationForBufferRow(row) + 1
-        if editor.lineTextForBufferRow(row).indexOf("@fold-deep") != -1
-          level = 999
-      else if editor.lineTextForBufferRow(row).indexOf("!fold") != -1
-        folding = false
-  # <!fold>
+		for row in [0..editor.getLastBufferRow()]
+			console.log row
+			if editor.isFoldableAtBufferRow(row) and folding and editor.indentationForBufferRow(row) <= level
+				console.log "folding"
+				editor.foldBufferRow(row)
+			if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
+				folding = true
+				level = editor.indentationForBufferRow(row)
+				if editor.lineTextForBufferRow(row).indexOf("@fold-children") != -1
+					level = editor.indentationForBufferRow(row) + 1
+				if editor.lineTextForBufferRow(row).indexOf("@fold-deep") != -1
+					level = 999
+			else if editor.lineTextForBufferRow(row).indexOf("!fold") != -1
+				folding = false
+	# <!fold>
 
-  ###
-  regexes = []
-  for row in [0..editor.getLastBufferRow()]
-    continue unless editor.isBufferRowCommented(row)
-    if editor.lineTextForBufferRow(row).indexOf("@auto-fold regex") != -1
-      editor.lineTextForBufferRow(row).replace /\/(.*?)\//g, (m, regex) ->
-        regexes.push new RegExp(regex)
-        return m
-    break
+	###
+	regexes = []
+	for row in [0..editor.getLastBufferRow()]
+		continue unless editor.isBufferRowCommented(row)
+		if editor.lineTextForBufferRow(row).indexOf("@auto-fold regex") != -1
+			editor.lineTextForBufferRow(row).replace /\/(.*?)\//g, (m, regex) ->
+				regexes.push new RegExp(regex)
+				return m
+		break
 
-  eachRow = (f) ->
-    foldNext = false
-    any = false
-    for row in [0..editor.getLastBufferRow()]
-      if editor.isFoldableAtBufferRow(row) && (foldNext || regexes.some((r) -> editor.lineTextForBufferRow(row).match(r)?))
-        any = true if f(row)
-      foldNext = editor.isBufferRowCommented(row) && editor.lineTextForBufferRow(row).indexOf("@auto-fold here") != -1
-    return any
+	eachRow = (f) ->
+		foldNext = false
+		any = false
+		for row in [0..editor.getLastBufferRow()]
+			if editor.isFoldableAtBufferRow(row) && (foldNext || regexes.some((r) -> editor.lineTextForBufferRow(row).match(r)?))
+				any = true if f(row)
+			foldNext = editor.isBufferRowCommented(row) && editor.lineTextForBufferRow(row).indexOf("@auto-fold here") != -1
+		return any
 
-  if action == 'toggle'
-    action = if eachRow((row) -> editor.isFoldedAtBufferRow(row)) then 'unfold' else 'fold'
+	if action == 'toggle'
+		action = if eachRow((row) -> editor.isFoldedAtBufferRow(row)) then 'unfold' else 'fold'
 
-  if action == "fold"
-    eachRow (row) -> editor.foldBufferRow(row) unless editor.isFoldedAtBufferRow(row)
-  else
-    eachRow (row) -> editor.unfoldBufferRow(row) if editor.isFoldedAtBufferRow(row)
-  ###
+	if action == "fold"
+		eachRow (row) -> editor.foldBufferRow(row) unless editor.isFoldedAtBufferRow(row)
+	else
+		eachRow (row) -> editor.unfoldBufferRow(row) if editor.isFoldedAtBufferRow(row)
+	###
