@@ -7,28 +7,35 @@ module.exports = CodeFolder =
 
 	# folding test @fold
 	activate: (state) ->
+		console.log "activate"
 		atom.workspace.observeTextEditors (editor) =>
 			editor.displayBuffer.tokenizedBuffer.onDidTokenize =>
 				@doFold 'fold', editor
 	doFold: (action, editor) ->
+		console.log "dofold"
 		editor ?= atom.workspace.getActiveTextEditor()
 
 		folding = false
 		level = null
 
-		for row in [0..editor.getLastBufferRow()]
-			console.log row
+
+
+		for row in [editor.getLastBufferRow()..0]
+			console.log {
+				row: row
+				level: editor.indentationForBufferRow(row)
+				text: editor.lineTextForBufferRow(row)
+			}
 			if editor.isFoldableAtBufferRow(row) and folding and editor.indentationForBufferRow(row) <= level
-				console.log "folding"
-				#editor.foldBufferRow(row)
-			if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
+				console.log "folding for realz - #{editor.foldBufferRow(row)}"
+			if editor.lineTextForBufferRow(row).indexOf("!fold") != -1
 				folding = true
 				level = editor.indentationForBufferRow(row)
-				if editor.lineTextForBufferRow(row).indexOf("@fold-children") != -1
+				if editor.lineTextForBufferRow(row).indexOf("!fold-children") != -1
 					level = editor.indentationForBufferRow(row) + 1
-				if editor.lineTextForBufferRow(row).indexOf("@fold-deep") != -1
+				if editor.lineTextForBufferRow(row).indexOf("!fold-deep") != -1
 					level = 999
-			else if editor.lineTextForBufferRow(row).indexOf("!fold") != -1
+			else if editor.lineTextForBufferRow(row).indexOf("@fold") != -1
 				folding = false
 	# <!fold>
 
