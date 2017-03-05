@@ -1,8 +1,14 @@
 # code-folder package
 
-A custom code folder for Atom coffeescript projects. Folding blocks can be created using `@fold` `@fold-children` and `@fold-deep` as comments inside your code. Folding sections are closed by replacing `@` with `!`.
+A custom code folder for Atom projects. Automatically folds all collapsable regions on a given level any time you open a file. Folding blocks can be created using `@fold` `@fold-children` and `@fold-deep` as comments inside your code. Folding sections are closed by replacing `@` with `!`.
 
-Example use:
+`@fold` and `!fold`: Automatically folds all collapsable regions between the comments on the same tab level as the comment.
+
+`@fold-children` and `!fold-children`: Automatically folds all collapsable regions on the same tab level and one level below.
+
+`@fold-deep` and `!fold-deep`: Automatically folds all regions at any depth between the tags.
+
+Example use (coffeescript):
 ```
 test = {
 	#@fold
